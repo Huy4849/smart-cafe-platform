@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Stop old containers
+      command: docker compose down
+
+    - name: Build & start containers
+      command: docker compose up -d --build
+
+    - name: Show running containers
+      command: docker ps
