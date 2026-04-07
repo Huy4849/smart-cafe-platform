@@ -1,11 +1,23 @@
-const db = require("../config/db");
+const dashboardRepository = require('../repositories/dashboard.repository');
 
-exports.getStats = async () => {
-    const totalOrders = await db.query("SELECT COUNT(*) FROM orders");
-    const revenue = await db.query("SELECT SUM(total) FROM orders");
+class DashboardService {
+    async getStats() {
+        const [dailyRevenue, totalRevenue, totalCustomers, totalOrders, topCustomers] = await Promise.all([
+            dashboardRepository.getDailyRevenue(),
+            dashboardRepository.getTotalRevenue(),
+            dashboardRepository.getTotalCustomers(),
+            dashboardRepository.getTotalOrders(),
+            dashboardRepository.getTopCustomers()
+        ]);
 
-    return {
-        totalOrders: totalOrders.rows[0].count,
-        revenue: revenue.rows[0].sum || 0,
-    };
-};
+        return {
+            dailyRevenue,
+            totalRevenue,
+            totalCustomers,
+            totalOrders,
+            topCustomers
+        };
+    }
+}
+
+module.exports = new DashboardService();

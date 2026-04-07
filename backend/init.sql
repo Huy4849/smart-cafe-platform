@@ -59,12 +59,41 @@ ALTER SEQUENCE public.order_items_id_seq OWNED BY public.order_items.id;
 
 
 --
+-- Name: customers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.customers (
+    id integer NOT NULL,
+    name character varying(100),
+    phone character varying(20),
+    points integer DEFAULT 0,
+    total_spent numeric DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE public.customers OWNER TO postgres;
+
+CREATE SEQUENCE public.customers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.customers_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
+ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.customers_id_seq'::regclass);
+ALTER TABLE ONLY public.customers ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
+
+--
 -- Name: orders; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.orders (
     id integer NOT NULL,
     user_id integer,
+    customer_id integer,
     total numeric,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
@@ -328,6 +357,9 @@ ALTER TABLE ONLY public.order_items
 
 ALTER TABLE ONLY public.orders
     ADD CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id);
 
 
 --

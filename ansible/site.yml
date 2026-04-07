@@ -1,0 +1,12 @@
+---
+- name: Deploy Smart Cafe Platform
+  hosts: all
+  become: yes
+  vars:
+    docker_registry: ghcr.io
+    image_name: "{{ lookup('env', 'GITHUB_REPOSITORY') }}"
+  roles:
+    - docker
+    - monitoring
+    - backend
+    - frontend

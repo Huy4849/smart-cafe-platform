@@ -1,14 +1,11 @@
 const orderService = require("../services/order.service");
 
-exports.createOrder = async (req, res) => {
+exports.createOrder = async (req, res, next) => {
     try {
-        const userId = req.user.id; // lấy từ JWT
-        const items = req.body.items;
-
-        const data = await orderService.createOrder(userId, items);
-
-        res.json(data);
+        const userId = req.user.id;
+        const data = await orderService.createOrder(userId, req.body);
+        res.status(201).json({ status: 'success', data });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };

@@ -1,5 +1,5 @@
-const db = require("../config/db");
 const redis = require("../config/redis");
+const productRepository = require("../repositories/product.repository");
 
 exports.getProducts = async (page = 1, limit = 5) => {
     const cacheKey = `products:${page}:${limit}`;
@@ -16,33 +16,21 @@ exports.getProducts = async (page = 1, limit = 5) => {
 
     const offset = (page - 1) * limit;
 
-    const result = await db.query(
-        "SELECT * FROM products LIMIT $1 OFFSET $2",
-        [limit, offset]
-    );
+    const products = await productRepository.findPaginated(limit, offset);
 
     // 👉 save cache
-    await redis.set(cacheKey, JSON.stringify(result.rows), {
+    await redis.set(cacheKey, JSON.stringify(products), {
         EX: 60, // cache 60s
     });
 
-    return result.rows;
+    return products;
 };
 
-exports.createProduct = async ({ name, price, category }) => {
-    await db.query(
-        "INSERT INTO products (name, price, category) VALUES ($1, $2, $3)",
-        [name, price, category]
-    );
-
-    return { message: "Product created" };
+exports.createProduct = async (data) => {
+    const newProduct = await productRepository.create(data);
+    return { message: "Product created", product: newProduct };
 };
 
 exports.searchProducts = async (keyword) => {
-    const result = await db.query(
-        "SELECT * FROM products WHERE name ILIKE $1",
-        [`%${keyword}%`]
-    );
-
-    return result.rows;
+    return await productRepository.searchByName(keyword);
 };

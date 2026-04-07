@@ -1,42 +1,46 @@
-const db = require("../config/db");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const userRepository = require('../repositories/user.repository');
+const AppError = require('../utils/AppError');
 
-exports.register = async ({ name, email, password }) => {
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+class AuthService {
+    async register(data) {
+        const existingUser = await userRepository.findByEmail(data.email);
+        if (existingUser) {
+            throw new AppError('Email already in use', 400);
+        }
 
-    await db.query(
-        "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
-        [name, email, hashedPassword]
-    );
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        
+        const newUser = await userRepository.create({
+            name: data.name,
+            email: data.email,
+            password: hashedPassword
+        });
 
-    return { message: "User registered successfully" };
-};
-
-exports.login = async ({ email, password }) => {
-    const result = await db.query(
-        "SELECT * FROM users WHERE email = $1",
-        [email]
-    );
-
-    if (result.rows.length === 0) {
-        throw new Error("User not found");
+        return { message: 'User registered successfully', user: newUser };
     }
 
-    const user = result.rows[0];
+    async login(data) {
+        const user = await userRepository.findByEmail(data.email);
+        
+        if (!user) {
+            throw new AppError('Invalid email or password', 401);
+        }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(data.password, user.password);
+        if (!isMatch) {
+            throw new AppError('Invalid email or password', 401);
+        }
 
-    if (!isMatch) {
-        throw new Error("Wrong password");
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET || 'secret123',
+            { expiresIn: '1d' }
+        );
+
+        return { token, user: { id: user.id, name: user.name, email: user.email, role: user.role } };
     }
+}
 
-    const token = jwt.sign(
-        { id: user.id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-    );
-
-    return { token };
-};
+module.exports = new AuthService();

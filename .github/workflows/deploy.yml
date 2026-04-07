@@ -1,30 +1,58 @@
-name: CI-CD Pipeline
+name: CI-CD Pipeline (GHCR & Ansible)
 
 on:
   push:
     branches: ["main"]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: write
     steps:
-      # 1. Lấy code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest
+
+      - name: Build and push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Cài Ansible
-      - name: Install Ansible
-        run: |
-          sudo apt update
-          sudo apt install ansible -y
+      - name: Add Private SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 3. Cài Docker Compose
-      - name: Install Docker Compose
+      - name: Run Ansible Playbook
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
-          sudo apt install docker-compose -y
-
-      # 4. Chạy Ansible
-      - name: Run Ansible
-        run: |
-          ansible-playbook -i ansible/inventory ansible/deploy.yml
+          ansible-playbook -i ansible/environments/prod/hosts.ini ansible/site.yml
