@@ -1,5 +1,7 @@
 import { createContext, useState } from "react";
+import PropTypes from 'prop-types';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const CartContext = createContext();
 
 export function CartProvider({ children }) {
@@ -31,3 +33,7 @@ export function CartProvider({ children }) {
         </CartContext.Provider>
     );
 }
+
+CartProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+};

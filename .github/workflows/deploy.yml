@@ -2,14 +2,52 @@ name: CI-CD Pipeline (GHCR & Ansible)
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "staging"]
+  pull_request:
+    branches: ["main", "staging"]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./backend
+
+      - name: Lint backend
+        run: npm run lint
+        working-directory: ./backend
+
+      - name: Test backend
+        run: npm test
+        working-directory: ./backend
+
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Test frontend
+        run: npm test
+        working-directory: ./frontend
+
   build-and-push:
+    needs: test-and-lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,8 +77,31 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
 
-  deploy:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          scan-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest'
+          format: 'sarif'
+          output: 'trivy-backend-results.sarif'
+
+      - name: Run Trivy vulnerability scanner for frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          scan-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest'
+          format: 'sarif'
+          output: 'trivy-frontend-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-backend-results.sarif,trivy-frontend-results.sarif'
+
+  deploy-staging:
     needs: build-and-push
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -51,8 +112,50 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Run Ansible Playbook
+      - name: Run Ansible Playbook for Staging
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          ansible-playbook -i ansible/environments/staging/hosts.ini ansible/site.yml
+
+  deploy-prod:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Add Private SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Run Ansible Playbook for Production
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           ansible-playbook -i ansible/environments/prod/hosts.ini ansible/site.yml
+
+  notify:
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send Slack notification on success
+        if: needs.build-and-push.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'success'
+          text: '✅ CI/CD Pipeline completed successfully'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
+
+      - name: Send Slack notification on failure
+        if: needs.build-and-push.result != 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'failure'
+          text: '❌ CI/CD Pipeline failed'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true

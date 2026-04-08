@@ -1,29 +1,33 @@
 const db = require('../config/db');
 
 class DashboardRepository {
-    async getDailyRevenue() {
-        const { rows } = await db.query("SELECT COALESCE(SUM(total), 0) AS revenue FROM orders WHERE DATE(created_at) = CURRENT_DATE");
-        return Array.isArray(rows) && rows.length > 0 ? Number(rows[0].revenue) : 0;
+    async getTotalLeads() {
+        const { rows } = await db.query("SELECT COUNT(*) AS count FROM leads");
+        return Array.isArray(rows) && rows.length > 0 ? Number(rows[0].count) : 0;
     }
     
-    async getTotalRevenue() {
-        const { rows } = await db.query("SELECT COALESCE(SUM(total), 0) AS revenue FROM orders");
-        return Array.isArray(rows) && rows.length > 0 ? Number(rows[0].revenue) : 0;
-    }
-
-    async getTotalCustomers() {
-         const { rows } = await db.query("SELECT COUNT(id) AS count FROM customers");
-         return Array.isArray(rows) && rows.length > 0 ? Number(rows[0].count) : 0;
-    }
-
-    async getTotalOrders() {
-        const { rows } = await db.query("SELECT COUNT(id) AS count FROM orders");
+    async getTotalDeals() {
+        const { rows } = await db.query("SELECT COUNT(*) AS count FROM deals");
         return Array.isArray(rows) && rows.length > 0 ? Number(rows[0].count) : 0;
     }
 
-    async getTopCustomers() {
-        const { rows } = await db.query("SELECT id, name, phone, points, total_spent FROM customers ORDER BY total_spent DESC LIMIT 5");
+    async getTotalExpectedRevenue() {
+         const { rows } = await db.query("SELECT COALESCE(SUM(value), 0) AS revenue FROM deals");
+         return Array.isArray(rows) && rows.length > 0 ? Number(rows[0].revenue) : 0;
+    }
+
+    async getRecentDeals() {
+        const { rows } = await db.query("SELECT id, title, value, stage FROM deals ORDER BY created_at DESC LIMIT 5");
         return rows;
+    }
+
+    async getRevenueByStage() {
+        const { rows } = await db.query(`
+            SELECT stage as name, SUM(value) as total 
+            FROM deals 
+            GROUP BY stage
+        `);
+        return rows.map(r => ({ name: r.name, total: Number(r.total) }));
     }
 }
 

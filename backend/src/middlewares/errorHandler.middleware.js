@@ -16,7 +16,7 @@ const sendErrorProd = (err, res) => {
             status: err.status,
             message: err.message
         });
-    } 
+    }
     // Programming or other unknown error: don't leak error details
     else {
         console.error('ERROR 💥', err);
@@ -27,6 +27,7 @@ const sendErrorProd = (err, res) => {
     }
 };
 
+// eslint-disable-next-line no-unused-vars
 module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -37,7 +38,7 @@ module.exports = (err, req, res, next) => {
         // Here we could handle specific DB errors, like unique constraint
         let error = { ...err };
         error.message = err.message;
-        
+
         if (err.code === '23505') { // Postgres unique violation
             error = new AppError('Duplicate field value entered', 400);
         }

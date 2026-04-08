@@ -1,6 +1,6 @@
-# 🚀 Smart Cafe Platform – Fullstack DevOps Project
+# Smart Cafe Platform – Fullstack DevOps Project
 
-## 📌 Overview
+## Overview
 
 Smart Cafe Platform is a **fullstack web application integrated with a complete DevOps pipeline**, designed to simulate a real-world production system.
 
@@ -18,7 +18,7 @@ This project demonstrates how to:
 
 ---
 
-## 🧱 Architecture
+## Architecture
 
 ```
 User → Nginx → Frontend (React)
@@ -32,21 +32,21 @@ User → Nginx → Frontend (React)
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
-### 🔹 Frontend
+### Frontend
 
 * React.js
 
-### 🔹 Backend
+### Backend
 
 * Node.js (Express)
 
-### 🔹 Database
+### Database
 
 * PostgreSQL
 
-### 🔹 DevOps Tools
+### DevOps Tools
 
 * Docker & Docker Compose
 * Nginx (Reverse Proxy)
@@ -57,15 +57,15 @@ User → Nginx → Frontend (React)
 
 ---
 
-## 🐳 Run Project
+## Run Project
 
-### ▶️ Start system
+### Start system
 
 ```
 docker-compose up -d --build
 ```
 
-### ⛔ Stop system
+### Stop system
 
 ```
 docker-compose down
@@ -73,7 +73,7 @@ docker-compose down
 
 ---
 
-## 🌐 Access
+## Access
 
 | Service     | URL                   |
 | ----------- | --------------------- |
@@ -84,9 +84,9 @@ docker-compose down
 
 ---
 
-## ⚡ Features
+## Features
 
-### 🔹 Fullstack Features
+### Fullstack Features
 
 * User authentication (JWT)
 * Product management
@@ -95,7 +95,7 @@ docker-compose down
 
 ---
 
-### 🔹 DevOps Features
+### DevOps Features
 
 * Multi-container Docker system
 * Nginx reverse proxy
@@ -106,7 +106,7 @@ docker-compose down
 
 ---
 
-## ⚡ Redis Caching
+## Redis Caching
 
 Redis is used to cache API responses to improve performance.
 
@@ -121,29 +121,29 @@ Example:
 
 ---
 
-## 📊 Monitoring
+## Monitoring
 
-### 🔹 Prometheus
+### Prometheus
 
 * Collects metrics from `/metrics` endpoint
 * Scrapes data periodically
 
-### 🔹 Grafana
+### Grafana
 
 * Visualizes system performance
 * Provides monitoring dashboards
 
 ---
 
-## 🤖 Ansible Automation
+## Ansible Automation
 
-### ▶️ Run playbook
+### Run playbook
 
 ```
 ansible-playbook -i ansible/inventory ansible/deploy.yml
 ```
 
-### 🔹 Tasks
+### Tasks
 
 * Stop running containers
 * Rebuild Docker system
@@ -151,13 +151,13 @@ ansible-playbook -i ansible/inventory ansible/deploy.yml
 
 ---
 
-## 🔄 CI/CD Pipeline
+## CI/CD Pipeline
 
 ### 🔹 Trigger
 
 * Automatically runs on `git push`
 
-### 🔹 Workflow
+### Workflow
 
 ```
 Git push
@@ -167,7 +167,7 @@ Git push
 → Deploy Docker system
 ```
 
-### 📁 Location
+### Location
 
 ```
 .github/workflows/deploy.yml
@@ -175,7 +175,7 @@ Git push
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 smart-cafe-platform/
@@ -193,7 +193,7 @@ smart-cafe-platform/
 
 ---
 
-## 🔐 Security
+## Security
 
 * Environment variables for sensitive data
 * JWT authentication
@@ -201,7 +201,7 @@ smart-cafe-platform/
 
 ---
 
-## 🏆 Current Status
+## Current Status
 
 | Feature    | Status |
 | ---------- | ------ |
@@ -215,7 +215,7 @@ smart-cafe-platform/
 
 ---
 
-## 🚀 Future Improvements
+## Future Improvements
 
 * Add HTTPS (SSL)
 * Add database backup automation
@@ -225,14 +225,14 @@ smart-cafe-platform/
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 * Name: *Your Name*
 * Role: Junior DevOps / Fullstack Developer
 
 ---
 
-## 💥 Final Note
+## Final Note
 
 This project simulates a **production-like DevOps environment**, combining development and operations into a single workflow.
 

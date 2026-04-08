@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
+const userController = require("../controllers/user.controller");
 
-// API cần login mới gọi được
+// Lấy thông tin cá nhân hiện tại
 router.get("/profile", auth.protect, (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -16,5 +17,11 @@ router.get("/profile", auth.protect, (req, res) => {
         }
     });
 });
+
+// Cập nhật thông tin cá nhân
+router.put("/profile", auth.protect, userController.updateProfile);
+
+// Đổi mật khẩu
+router.post("/change-password", auth.protect, userController.changePassword);
 
 module.exports = router;

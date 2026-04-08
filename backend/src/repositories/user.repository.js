@@ -19,6 +19,20 @@ class UserRepository {
         );
         return rows[0];
     }
+
+    async update(id, data) {
+        const { name, role } = data;
+        const { rows } = await db.query(
+            'UPDATE users SET name = $1, role = $2 WHERE id = $3 RETURNING id, name, email, role',
+            [name, role, id]
+        );
+        return rows[0];
+    }
+
+    async updatePassword(id, hashedPassword) {
+        await db.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, id]);
+        return true;
+    }
 }
 
 module.exports = new UserRepository();

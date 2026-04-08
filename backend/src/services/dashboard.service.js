@@ -2,20 +2,20 @@ const dashboardRepository = require('../repositories/dashboard.repository');
 
 class DashboardService {
     async getStats() {
-        const [dailyRevenue, totalRevenue, totalCustomers, totalOrders, topCustomers] = await Promise.all([
-            dashboardRepository.getDailyRevenue(),
-            dashboardRepository.getTotalRevenue(),
-            dashboardRepository.getTotalCustomers(),
-            dashboardRepository.getTotalOrders(),
-            dashboardRepository.getTopCustomers()
+        const [totalLeads, totalDeals, totalRevenue, recentDeals, chartData] = await Promise.all([
+            dashboardRepository.getTotalLeads(),
+            dashboardRepository.getTotalDeals(),
+            dashboardRepository.getTotalExpectedRevenue(),
+            dashboardRepository.getRecentDeals(),
+            dashboardRepository.getRevenueByStage()
         ]);
 
         return {
-            dailyRevenue,
+            totalLeads,
+            totalDeals,
             totalRevenue,
-            totalCustomers,
-            totalOrders,
-            topCustomers
+            recentDeals,
+            chartData
         };
     }
 }

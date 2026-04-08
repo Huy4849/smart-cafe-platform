@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
 
 function Admin() {
-    const [stats, setStats] = useState({
+    const [stats] = useState({
         totalOrders: 0,
         revenue: 0,
     });
@@ -25,11 +24,6 @@ function Admin() {
             window.location.href = "/";
         }
     }, []);
-
-    const logout = () => {
-        localStorage.removeItem("token");
-        window.location.href = "/";
-    };
 
     return (
         <div className="p-6">

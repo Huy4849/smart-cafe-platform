@@ -1,370 +1,108 @@
---
 -- PostgreSQL database dump
---
-
-\restrict cSj3sF5yisIXgfjr0VPaOuA6Gx3kgXsadrR7Gl7558Ds3r6pg86Dbf0Nz2cuNRi
-
--- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
--- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg13+1)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+SET default_transaction_isolation = 'read committed';
+SET timezone = 'UTC';
 
-SET default_tablespace = '';
+-- Cleanup old tables if any
+DROP TABLE IF EXISTS "tasks" CASCADE;
+DROP TABLE IF EXISTS "deals" CASCADE;
+DROP TABLE IF EXISTS "leads" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
+DROP TABLE IF EXISTS "products" CASCADE;
+DROP TABLE IF EXISTS "orders" CASCADE;
+DROP TABLE IF EXISTS "order_items" CASCADE;
+DROP TABLE IF EXISTS "customers" CASCADE;
 
-SET default_table_access_method = heap;
-
---
--- Name: order_items; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.order_items (
-    id integer NOT NULL,
-    order_id integer,
-    product_id integer,
-    quantity integer
+-- 1. USERS TABLE
+CREATE TABLE "users" (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role VARCHAR(20) DEFAULT 'sales',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-ALTER TABLE public.order_items OWNER TO postgres;
-
---
--- Name: order_items_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.order_items_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.order_items_id_seq OWNER TO postgres;
-
---
--- Name: order_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.order_items_id_seq OWNED BY public.order_items.id;
-
-
---
--- Name: customers; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.customers (
-    id integer NOT NULL,
-    name character varying(100),
-    phone character varying(20),
-    points integer DEFAULT 0,
-    total_spent numeric DEFAULT 0,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+-- 2. LEADS TABLE
+CREATE TABLE "leads" (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    source VARCHAR(50), -- e.g., Website, Referral, Ads
+    status VARCHAR(20) DEFAULT 'New', -- New, Contacted, Qualified, Lost
+    assigned_user_id INTEGER REFERENCES "users"(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE public.customers OWNER TO postgres;
-
-CREATE SEQUENCE public.customers_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE public.customers_id_seq OWNER TO postgres;
-ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
-ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.customers_id_seq'::regclass);
-ALTER TABLE ONLY public.customers ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
-
---
--- Name: orders; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.orders (
-    id integer NOT NULL,
-    user_id integer,
-    customer_id integer,
-    total numeric,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+-- 3. DEALS TABLE
+CREATE TABLE "deals" (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    value NUMERIC DEFAULT 0,
+    stage VARCHAR(50) DEFAULT 'Proposal', -- Proposal, Negotiation, Won, Lost
+    priority INTEGER DEFAULT 0, -- 0-3 Stars
+    probability NUMERIC DEFAULT 10, -- 0-100 %
+    expected_closing_date DATE,
+    color_index INTEGER DEFAULT 0,
+    lead_id INTEGER REFERENCES "leads"(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-ALTER TABLE public.orders OWNER TO postgres;
-
---
--- Name: orders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.orders_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.orders_id_seq OWNER TO postgres;
-
---
--- Name: orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.orders_id_seq OWNED BY public.orders.id;
-
-
---
--- Name: products; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.products (
-    id integer NOT NULL,
-    name character varying(255),
-    price numeric,
-    category character varying(100),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+-- 4. TASKS TABLE
+CREATE TABLE "tasks" (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    type VARCHAR(50) DEFAULT 'Call', -- Call, Email, Meeting
+    status VARCHAR(20) DEFAULT 'Pending', -- Pending, Done
+    due_date TIMESTAMP,
+    lead_id INTEGER REFERENCES "leads"(id) ON DELETE CASCADE,
+    assigned_user_id INTEGER REFERENCES "users"(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-ALTER TABLE public.products OWNER TO postgres;
-
---
--- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.products_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.products_id_seq OWNER TO postgres;
-
---
--- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
-
-
---
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.users (
-    id integer NOT NULL,
-    name character varying(100),
-    email character varying(100),
-    password text,
-    role character varying(20) DEFAULT 'user'::character varying,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+-- 5. NOTES (CHATTER) TABLE
+CREATE TABLE "notes" (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    deal_id INTEGER REFERENCES "deals"(id) ON DELETE CASCADE,
+    author_id INTEGER REFERENCES "users"(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-ALTER TABLE public.users OWNER TO postgres;
-
---
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.users_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
-
---
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
-
-
---
--- Name: order_items id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.order_items ALTER COLUMN id SET DEFAULT nextval('public.order_items_id_seq'::regclass);
-
-
---
--- Name: orders id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.orders ALTER COLUMN id SET DEFAULT nextval('public.orders_id_seq'::regclass);
-
-
---
--- Name: products id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.products_id_seq'::regclass);
-
-
---
--- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
-
-
---
--- Data for Name: order_items; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.order_items (id, order_id, product_id, quantity) FROM stdin;
-1	1	1	2
-2	1	2	1
-3	2	1	1
-4	2	2	1
-\.
-
-
---
--- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.orders (id, user_id, total, created_at) FROM stdin;
-1	1	60000	2026-03-23 19:30:27.317204
-2	1	40000	2026-03-24 17:57:39.313515
-\.
-
-
---
--- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.products (id, name, price, category, created_at) FROM stdin;
-1	Coffee	20000	drink	2026-03-23 19:15:56.00138
-2	Coffee	20000	drink	2026-03-23 19:28:20.552519
-\.
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.users (id, name, email, password, role, created_at) FROM stdin;
-1	\N	test1@gmail.com	$2b$10$.ASGuTgOlDf7WeHrPAqmF.E.hbpiYYwoZYryRaEJ2snk0eU6zvbW.	admin	2026-03-23 10:15:30.75738
-\.
-
-
---
--- Name: order_items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.order_items_id_seq', 4, true);
-
-
---
--- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.orders_id_seq', 2, true);
-
-
---
--- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.products_id_seq', 2, true);
-
-
---
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.users_id_seq', 1, true);
-
-
---
--- Name: order_items order_items_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.order_items
-    ADD CONSTRAINT order_items_pkey PRIMARY KEY (id);
-
-
---
--- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.orders
-    ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
-
-
---
--- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.products
-    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
-
-
---
--- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_email_key UNIQUE (email);
-
-
---
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
-
-
---
--- Name: order_items order_items_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.order_items
-    ADD CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id);
-
-
---
--- Name: order_items order_items_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.order_items
-    ADD CONSTRAINT order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
-
-
---
--- Name: orders orders_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.orders
-    ADD CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-ALTER TABLE ONLY public.orders
-    ADD CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id);
-
-
---
--- PostgreSQL database dump complete
---
-
-\unrestrict cSj3sF5yisIXgfjr0VPaOuA6Gx3kgXsadrR7Gl7558Ds3r6pg86Dbf0Nz2cuNRi
-
+-- DUMMY DATA FOR GRADUATION PROJECT (CRM SYSTEM)
+INSERT INTO "users" (name, email, password, role) VALUES 
+('Admin / Tác giả', 'admin@example.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
+('Sale NV1', 'sale1@example.com', '$2b$10$.ASGuTgOlDf7WeHrPAqmF.E.hbpiYYwoZYryRaEJ2snk0eU6zvbW.', 'sales');
+
+INSERT INTO "leads" (name, email, phone, source, status, assigned_user_id) VALUES 
+('Công ty ABC', 'contact@abc.vn', '0912345678', 'Website', 'Qualified', 1),
+('Anh Hiếu IT', 'hieu@tech.io', '0988777666', 'Referral', 'New', 1),
+('Chị Hằng HR', 'hang.hr@company.com', '0123456789', 'Ads', 'Contacted', 2),
+('Tập đoàn Global Corp', 'global@corp.com', '02833445566', 'Website', 'Qualified', 1),
+('Shop Quần áo Mây', 'may.shop@gmail.com', '0933112233', 'Ads', 'New', 1),
+('Cửa hàng Gia dụng Việt', 'gd.viet@outlook.com', '0901223344', 'Referral', 'Contacted', 2),
+('Trường học Sáng Tạo', 'edu.st@school.vn', '02455667788', 'Website', 'Qualified', 1),
+('Quán Cafe Gió', 'gio.cafe@gmail.com', '0911223344', 'Ads', 'Lost', 1);
+
+INSERT INTO "deals" (title, value, stage, priority, probability, color_index, lead_id) VALUES 
+('Cung cấp phần mềm nội bộ', 150000000, 'Negotiation', 3, 80, 1, 1),
+('Thuê mướn Server 1 năm', 30000000, 'Won', 1, 100, 2, 1),
+('Bảo trì mạng VPS', 5000000, 'Proposal', 0, 30, 0, 2),
+('Triển khai ERP trọn gói', 500000000, 'Negotiation', 3, 40, 1, 4),
+('Gói tư vấn chuyển đổi số', 45000000, 'Proposal', 2, 10, 3, 7),
+('Bản quyền Office 365', 12000000, 'Won', 1, 100, 2, 6),
+('Hệ thống POS bán hàng', 25000000, 'Won', 2, 100, 0, 5),
+('Gói Marketing quý 4', 60000000, 'Lost', 1, 0, 4, 3);
+
+INSERT INTO "notes" (content, deal_id, author_id) VALUES
+('Khách hàng yêu cầu giảm giá 10%, chuẩn bị lên lịch meeting.', 1, 1),
+('Đã gửi tài liệu brochure qua email.', 1, 2),
+('Cần follow up gấp vì đối thủ đang chào giá thấp hơn.', 4, 1);
+
+INSERT INTO "tasks" (title, type, status, due_date, lead_id, assigned_user_id) VALUES 
+('Gọi điện báo giá cho ABC', 'Call', 'Pending', CURRENT_TIMESTAMP + INTERVAL '1 day', 1, 1),
+('Gặp anh Hiếu tư vấn', 'Meeting', 'Done', CURRENT_TIMESTAMP - INTERVAL '2 days', 2, 1),
+('Gửi email chào hàng Global Corp', 'Email', 'Pending', CURRENT_TIMESTAMP + INTERVAL '2 hours', 4, 1),
+('Họp team chốt deal ERP', 'Meeting', 'Pending', CURRENT_TIMESTAMP + INTERVAL '3 days', 4, 2);
