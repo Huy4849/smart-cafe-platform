@@ -1,6 +1,7 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "projectflow-ui",
+  "version": "1.0.0",
+  "description": "ProjectFlow - Modern React UI for Project Management Platform",
   "private": true,
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

@@ -1,7 +1,7 @@
 {
-  "name": "backend",
+  "name": "projectflow-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "ProjectFlow - RESTful API for Project Management Platform",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

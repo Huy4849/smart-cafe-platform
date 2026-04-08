@@ -3,23 +3,23 @@ version: "3.8"
 services:
   postgres:
     image: postgres:15
-    container_name: cafe-db
+    container_name: projectflow-db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: cafe_db
+      POSTGRES_DB: projectflow_db
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - cafe-network
+      - projectflow-network
 
   backend:
     build: ./backend
-    container_name: cafe-backend
+    container_name: projectflow-api
     restart: always
     ports:
       - "5000:5000"
@@ -30,25 +30,25 @@ services:
       DB_HOST: postgres
       DB_USER: postgres
       DB_PASSWORD: 123456
-      DB_NAME: cafe_db
+      DB_NAME: projectflow_db
       JWT_SECRET: secret123
     networks:
-      - cafe-network
+      - projectflow-network
 
   frontend:
     build: ./frontend
-    container_name: cafe-frontend
+    container_name: projectflow-ui
     restart: always
     ports:
       - "3000:80"
     depends_on:
       - backend
     networks:
-      - cafe-network
+      - projectflow-network
 
   nginx:
     image: nginx:alpine
-    container_name: cafe-nginx
+    container_name: projectflow-proxy
     restart: always
     ports:
       - "80:80"
@@ -58,41 +58,19 @@ services:
       - frontend
       - backend
     networks:
-      - cafe-network
+      - projectflow-network
 
   redis:
     image: redis:7-alpine
-    container_name: cafe-redis
+    container_name: projectflow-cache
     restart: always
     ports:
       - "6379:6379"
     networks:
-      - cafe-network
-
-  prometheus:
-    image: prom/prometheus
-    container_name: cafe-prometheus
-    restart: always
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    depends_on:
-      - backend
-    networks:
-      - cafe-network
-
-  grafana:
-    image: grafana/grafana
-    container_name: cafe-grafana
-    restart: always
-    ports:
-      - "3001:3000"
-    networks:
-      - cafe-network
+      - projectflow-network
 
 volumes:
   postgres_data:
 
 networks:
-  cafe-network:
+  projectflow-network:
