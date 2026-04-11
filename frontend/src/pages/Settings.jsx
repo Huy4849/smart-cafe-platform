@@ -1,7 +1,5 @@
-import React from 'react';
 import { useState } from 'react';
 import {
-    Settings,
     User,
     Bell,
     Shield,
@@ -17,7 +15,6 @@ import {
     HardDrive,
     CloudLightning,
     ChevronRight,
-    UserCheck,
     Eye,
     EyeOff,
     Download
@@ -34,7 +31,7 @@ export default function SettingsPage() {
     const [showPasswords, setShowPasswords] = useState({ current: false, new: false });
 
     // System Stats
-    const { data: systemStats, isLoading: statsLoading } = useQuery({
+    const { data: systemStats } = useQuery({
         queryKey: ['system-stats'],
         queryFn: async () => {
             const res = await api.get('/reports/system-stats');

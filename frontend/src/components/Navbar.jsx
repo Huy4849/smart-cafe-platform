@@ -1,10 +1,8 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
     Briefcase,
     Home,
     LogOut,
-    LayoutDashboard,
     Users,
     CheckSquare,
     Settings,

@@ -1,6 +1,7 @@
+// eslint-disable-next-line no-unused-vars
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Target, Settings, Users, Briefcase, BarChart3, Zap, Layers, ChevronRight, LayoutGrid, Award, Activity, Folder, Sparkles } from 'lucide-react';
+import { Target, Users, Briefcase, BarChart3, Layers, Award, Activity, Folder, Sparkles } from 'lucide-react';
 
 const apps = [
   { id: 'dashboard', name: 'Báo cáo kinh doanh', icon: <BarChart3 className="w-12 h-12" />, color: 'bg-indigo-600', path: '/dashboard', description: 'Theo dõi doanh thu & hiệu suất' },

@@ -1,6 +1,5 @@
-import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Users, Briefcase, CheckSquare, Settings, ChevronDown, User, LogOut, LayoutGrid, BarChart, Folder, Layers } from 'lucide-react';
+import { Users, Briefcase, Settings, ChevronDown, User, LogOut, LayoutGrid, BarChart, Folder, Layers } from 'lucide-react';
 import { useState } from 'react';
 import useStore from '../store/useStore';
 

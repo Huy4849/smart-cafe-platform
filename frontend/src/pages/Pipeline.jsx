@@ -1,26 +1,19 @@
-import React from 'react';
-import { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
     Plus,
     Search,
-    DollarSign,
     TrendingUp,
-    Calendar,
     X,
     TrendingDown,
-    ChevronRight,
-    MoreVertical,
     CheckCircle2,
     XCircle,
-    Briefcase,
     Target,
     ArrowRight,
     Filter,
     Users,
     AlertCircle,
-    Clock,
-    Layout
+    Clock
 } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -39,7 +32,7 @@ const STAGE_COLORS = {
 const PipelinePage = () => {
     const token = useStore((state) => state.token);
     const [deals, setDeals] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
     const [searchParams] = useSearchParams();
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [ownerFilter, setOwnerFilter] = useState(searchParams.get('owner') || 'all');
@@ -62,14 +55,7 @@ const PipelinePage = () => {
         owner_id: ''
     });
 
-    useEffect(() => {
-        if (!token) return;
-        fetchDeals();
-        fetchCustomers();
-        fetchUsers();
-    }, [token, ownerFilter, search]);
-
-    const fetchDeals = async () => {
+    const fetchDeals = useCallback(async () => {
         setLoading(true);
         try {
             const response = await api.get(`/deals?search=${search}&owner_id=${ownerFilter}`);
@@ -89,25 +75,32 @@ const PipelinePage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [search, ownerFilter]);
 
-    const fetchCustomers = async () => {
+    const fetchCustomers = useCallback(async () => {
         try {
             const response = await api.get('/customers');
             setCustomers(response.data.data.customers || []);
         } catch (err) {
             console.error('Lấy danh sách khách hàng thất bại');
         }
-    };
+    }, []);
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         try {
             const response = await api.get('/users');
             setUsers(response.data.data.users || []);
         } catch (err) {
             console.error('Lấy danh sách nhân sự thất bại');
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!token) return;
+        fetchDeals();
+        fetchCustomers();
+        fetchUsers();
+    }, [token, ownerFilter, search, fetchDeals, fetchCustomers, fetchUsers]);
 
     const filteredDeals = useMemo(() => {
         return deals.filter(deal => {

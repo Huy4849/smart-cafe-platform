@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     Users,
     Plus,
@@ -8,16 +7,10 @@ import {
     Trash2,
     Mail,
     Phone,
-    Building2,
-    MoreVertical,
-    Filter,
-    CheckCircle,
-    Clock,
     ChevronRight,
     UserPlus,
     X,
-    Target,
-    Layout
+    Target
 } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -55,12 +48,7 @@ const Customers = () => {
         title: '', value: 0, customer_id: ''
     });
 
-    useEffect(() => {
-        if (!token) return;
-        fetchCustomers();
-    }, [token, search, statusFilter]);
-
-    const fetchCustomers = async () => {
+    const fetchCustomers = useCallback(async () => {
         setLoading(true);
         try {
             const response = await api.get(`/customers?search=${search}&status=${statusFilter}`);
@@ -70,7 +58,12 @@ const Customers = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [search, statusFilter]);
+
+    useEffect(() => {
+        if (!token) return;
+        fetchCustomers();
+    }, [token, fetchCustomers]);
 
     const handleSave = async (e) => {
         e.preventDefault();

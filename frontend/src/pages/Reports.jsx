@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
@@ -24,7 +24,6 @@ import {
 import {
     TrendingUp,
     DollarSign,
-    Users,
     Target,
     Download,
     Filter,
@@ -119,6 +118,12 @@ const Reports = () => {
             );
         }
         return null;
+    };
+
+    CustomTooltip.propTypes = {
+        active: PropTypes.bool,
+        payload: PropTypes.array,
+        label: PropTypes.string
     };
 
     const handleExport = () => {

@@ -1,7 +1,7 @@
-import React from 'react';
-import { useState } from 'react';
+// eslint-disable-next-line no-unused-vars
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, ShieldCheck, Activity } from 'lucide-react';
+import { ShieldCheck, Activity } from 'lucide-react';
 import api from '../services/api';
 import useStore from '../store/useStore';
 

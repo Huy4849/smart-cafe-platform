@@ -1,19 +1,14 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import api from '../services/api';
 import {
   TrendingUp,
-  Plus,
-  DollarSign,
-  Calendar,
   Layers,
   Target,
   ArrowRight,
   Clock,
-  Layout,
   BarChart3,
   RefreshCw,
-  Search,
   ChevronRight,
   TrendingDown,
   Activity,
@@ -92,6 +87,21 @@ const EmptyState = ({ message, icon: Icon = Activity }) => (
     </p>
   </motion.div>
 );
+
+Skeleton.propTypes = {
+  className: PropTypes.string
+};
+
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.array,
+  label: PropTypes.string
+};
+
+EmptyState.propTypes = {
+  message: PropTypes.string.isRequired,
+  icon: PropTypes.elementType
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },

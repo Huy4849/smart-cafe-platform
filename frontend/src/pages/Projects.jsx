@@ -1,18 +1,15 @@
-import React from 'react';
-import { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   Folder,
   Plus,
   Edit2,
   Trash2,
   Clock,
-  Save,
   X,
   Search,
   Filter,
   Calendar,
   ChevronRight,
-  MoreVertical,
   Briefcase,
   AlertCircle,
   Zap,
@@ -21,19 +18,7 @@ import {
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
-import { motion } from 'framer-motion';
 
-const PRIORITY_COLORS = {
-  high: 'bg-rose-100 text-rose-700 border-rose-200',
-  medium: 'bg-amber-100 text-amber-700 border-amber-200',
-  low: 'bg-indigo-100 text-indigo-700 border-indigo-200'
-};
-
-const STATUS_COLORS = {
-  active: 'bg-emerald-100 text-emerald-700',
-  completed: 'bg-blue-100 text-blue-700',
-  archived: 'bg-slate-100 text-slate-700'
-};
 
 const HEALTH_COLORS = {
   on_track: 'bg-emerald-500',
@@ -104,26 +89,16 @@ const Projects = () => {
     };
   }, [projects]);
 
-  useEffect(() => {
-    if (!token) return;
-    fetchUsers();
-    const delayDebounceFn = setTimeout(() => {
-      fetchProjects();
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [token, search, statusFilter, priorityFilter, healthFilter, ownerFilter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await api.get('/users');
       setUsers(response.data.data.users || []);
     } catch (err) {
       console.error('Lấy danh sách nhân sự thất bại');
     }
-  };
+  }, []);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get(`/projects?search=${search}&status=${statusFilter}&owner_id=${ownerFilter}`);
@@ -138,7 +113,17 @@ const Projects = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, statusFilter, priorityFilter, healthFilter, ownerFilter]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchUsers();
+    const delayDebounceFn = setTimeout(() => {
+      fetchProjects();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [token, fetchUsers, fetchProjects]);
 
   const resetForm = () => {
     setSelectedProject(null);
