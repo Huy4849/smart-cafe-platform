@@ -1,5 +1,6 @@
+import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Users, Briefcase, CheckSquare, Settings, ChevronDown, User, LogOut, LayoutGrid } from 'lucide-react';
+import { Home, Users, Briefcase, CheckSquare, Settings, ChevronDown, User, LogOut, LayoutGrid, BarChart, Folder, Layers } from 'lucide-react';
 import { useState } from 'react';
 import useStore from '../store/useStore';
 
@@ -16,37 +17,43 @@ export default function Layout() {
 
   const getBreadcrumb = () => {
     switch (location.pathname) {
-      case '/dashboard': return 'Dashboard';
-      case '/leads': return 'Khách hàng';
-      case '/deals': return 'Cơ hội (Pipeline)';
-      case '/tasks': return 'Quản lý Công việc';
-      case '/reporting': return 'Báo cáo thông minh';
+      case '/dashboard': return 'Bảng điều khiển kinh doanh';
+      case '/pipeline': return 'Thương vụ';
+      case '/customers': return 'Danh sách khách hàng';
+      case '/projects': return 'Quản lý dự án';
+      case '/tasks': return 'Danh sách công việc';
+      case '/reports': return 'Báo cáo & Phân tích';
       case '/settings': return 'Cài đặt hệ thống';
-      default: return '';
+      default: return 'Hệ thống SmartCRM';
     }
   }
 
   const getLinkClass = (path) => {
-    return `flex flex-col items-center justify-center p-3 w-20 text-xs font-medium cursor-pointer transition ${location.pathname === path ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border-l-4 border-transparent'
+    const isActive = location.pathname === path;
+    return `flex flex-col items-center justify-center p-3 w-20 text-xs font-bold cursor-pointer transition-all duration-300 ${isActive
+      ? 'bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600 shadow-inner scale-105'
+      : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600 border-l-4 border-transparent'
       }`;
   };
 
   return (
     <div className="flex flex-col h-screen bg-[#F9F9F9] text-gray-800 font-sans">
       {/* Top Navbar Odoo Style */}
-      <header className="h-12 bg-primary text-white flex items-center px-4 shadow-md z-10 shrink-0">
+      <header className="h-12 bg-indigo-600 text-white flex items-center px-4 shadow-md z-10 shrink-0">
         <div className="flex items-center space-x-4">
           <Link to="/" title="App Launcher">
             <LayoutGrid className="w-5 h-5 cursor-pointer opacity-80 hover:opacity-100 transition" />
           </Link>
-          <span className="font-semibold tracking-wide text-lg">Odoo CRM</span>
+          <span className="font-semibold tracking-wide text-lg">SmartCRM</span>
         </div>
 
-        <div className="ml-8 flex space-x-6 text-sm font-medium opacity-90 hidden md:flex">
-          <Link to="/dashboard" className={`hover:text-white transition ${location.pathname === '/dashboard' ? 'text-white border-b-2 border-white' : 'opacity-70'} pb-1`}>Dashboard</Link>
-          <Link to="/deals" className={`hover:text-white transition ${location.pathname === '/deals' ? 'text-white border-b-2 border-white' : 'opacity-70'} pb-1`}>Sales</Link>
-          <Link to="/leads" className={`hover:text-white transition ${location.pathname === '/leads' ? 'text-white border-b-2 border-white' : 'opacity-70'} pb-1`}>Leads</Link>
-          <Link to="/reporting" className={`hover:text-white transition ${location.pathname === '/reporting' ? 'text-white border-b-2 border-white' : 'opacity-70'} pb-1`}>Reporting</Link>
+        <div className="ml-8 flex space-x-6 text-[11px] font-black uppercase tracking-wider opacity-90 hidden lg:flex h-full items-center">
+          <Link to="/dashboard" className={`hover:text-white transition-all h-full flex items-center px-1 border-b-2 ${location.pathname === '/dashboard' ? 'text-white border-white scale-110' : 'opacity-70 border-transparent hover:opacity-100'}`}>Tổng quan</Link>
+          <Link to="/pipeline" className={`hover:text-white transition-all h-full flex items-center px-1 border-b-2 ${location.pathname === '/pipeline' ? 'text-white border-white scale-110' : 'opacity-70 border-transparent hover:opacity-100'}`}>Thương vụ</Link>
+          <Link to="/customers" className={`hover:text-white transition-all h-full flex items-center px-1 border-b-2 ${location.pathname === '/customers' ? 'text-white border-white scale-110' : 'opacity-70 border-transparent hover:opacity-100'}`}>Khách hàng</Link>
+          <Link to="/projects" className={`hover:text-white transition-all h-full flex items-center px-1 border-b-2 ${location.pathname === '/projects' ? 'text-white border-white scale-110' : 'opacity-70 border-transparent hover:opacity-100'}`}>Dự án</Link>
+          <Link to="/tasks" className={`hover:text-white transition-all h-full flex items-center px-1 border-b-2 ${location.pathname === '/tasks' ? 'text-white border-white scale-110' : 'opacity-70 border-transparent hover:opacity-100'}`}>Công việc</Link>
+          <Link to="/reports" className={`hover:text-white transition-all h-full flex items-center px-1 border-b-2 ${location.pathname === '/reports' ? 'text-white border-white scale-110' : 'opacity-70 border-transparent hover:opacity-100'}`}>Báo cáo</Link>
         </div>
 
         <div className="ml-auto relative">
@@ -57,7 +64,7 @@ export default function Layout() {
             <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold border border-white/30">
               {user?.name?.[0] || 'A'}
             </div>
-            <span className="text-sm font-medium truncate max-w-[100px] hidden md:block">{user?.name || 'Admin'}</span>
+            <span className="text-sm font-medium truncate max-w-[100px] hidden md:block">{user?.name || 'Quản trị viên'}</span>
             <ChevronDown className={`w-4 h-4 transition ${isProfileOpen ? 'rotate-180' : ''}`} />
           </button>
 
@@ -80,32 +87,40 @@ export default function Layout() {
 
       {/* Control Panel (Sub-header) */}
       <div className="h-14 bg-white border-b border-gray-200 flex items-center px-6 shrink-0 shadow-sm">
-        <h1 className="text-xl font-normal text-gray-700">{getBreadcrumb()}</h1>
+        <h1 className="text-xl font-normal text-gray-700 uppercase italic font-bold">{getBreadcrumb()}</h1>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Extreme minimal Sidebar like Odoo apps menu */}
-        <aside className="w-20 bg-white border-r border-gray-200 flex flex-col items-center py-4 shrink-0 shadow-sm z-0">
+        <aside className="w-20 bg-white border-r border-slate-200 flex flex-col items-center py-6 shrink-0 shadow-xl z-0">
           <Link to="/dashboard" className={getLinkClass('/dashboard')}>
-            <Home className="w-6 h-6 mb-1" />
-            <span>Gốc</span>
+            <LayoutGrid className="w-5 h-5 mb-1.5" />
+            <span className="uppercase text-[9px] tracking-tighter">Tổng quan</span>
           </Link>
-          <Link to="/deals" className={getLinkClass('/deals')}>
-            <Briefcase className="w-6 h-6 mb-1" />
-            <span>Deals</span>
+          <Link to="/pipeline" className={getLinkClass('/pipeline')}>
+            <Layers className="w-5 h-5 mb-1.5" />
+            <span className="uppercase text-[9px] tracking-tighter">Thương vụ</span>
           </Link>
-          <Link to="/leads" className={getLinkClass('/leads')}>
-            <Users className="w-6 h-6 mb-1" />
-            <span>Leads</span>
+          <Link to="/customers" className={getLinkClass('/customers')}>
+            <Users className="w-5 h-5 mb-1.5" />
+            <span className="uppercase text-[9px] tracking-tighter">Khách hàng</span>
+          </Link>
+          <Link to="/projects" className={getLinkClass('/projects')}>
+            <Folder className="w-5 h-5 mb-1.5" />
+            <span className="uppercase text-[9px] tracking-tighter">Dự án</span>
           </Link>
           <Link to="/tasks" className={getLinkClass('/tasks')}>
-            <CheckSquare className="w-6 h-6 mb-1" />
-            <span>Tasks</span>
+            <Briefcase className="w-5 h-5 mb-1.5" />
+            <span className="uppercase text-[9px] tracking-tighter">Công việc</span>
+          </Link>
+          <Link to="/reports" className={getLinkClass('/reports')}>
+            <BarChart className="w-5 h-5 mb-1.5" />
+            <span className="uppercase text-[9px] tracking-tighter">Báo cáo</span>
           </Link>
 
-          <Link to="/settings" className={`mt-auto p-3 transition ${location.pathname === '/settings' ? 'text-primary bg-primary/10 border-l-4 border-primary' : 'text-gray-400 hover:text-gray-600 border-l-4 border-transparent'}`}>
-            <Settings className="w-6 h-6" />
-            <span className="text-[10px] uppercase font-bold mt-1">Cài đặt</span>
+          <Link to="/settings" className={`mt-auto p-3 transition-all duration-300 flex flex-col items-center ${location.pathname === '/settings' ? 'text-indigo-600 bg-indigo-50 border-l-4 border-indigo-600 scale-105' : 'text-slate-300 hover:text-slate-500 border-l-4 border-transparent'}`}>
+            <Settings className="w-5 h-5" />
+            <span className="text-[9px] uppercase font-black mt-1.5 tracking-tighter">Cấu hình</span>
           </Link>
         </aside>
 
