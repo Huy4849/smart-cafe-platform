@@ -20,9 +20,14 @@ const sendErrorProd = (err, res) => {
     // Programming or other unknown error: don't leak error details
     else {
         console.error('ERROR 💥', err);
+        // Special diagnostic log for "map" errors
+        if (err.message && err.message.includes('map')) {
+            console.log('--- DIAGNOSTIC STACK TRACE ---');
+            console.log(err.stack);
+        }
         res.status(500).json({
             status: 'error',
-            message: 'Something went very wrong!'
+            message: 'Đã xảy ra lỗi hệ thống nghiêm trọng!'
         });
     }
 };
@@ -40,7 +45,7 @@ module.exports = (err, req, res, next) => {
         error.message = err.message;
 
         if (err.code === '23505') { // Postgres unique violation
-            error = new AppError('Duplicate field value entered', 400);
+            error = new AppError('Dữ liệu này đã tồn tại trong hệ thống', 400);
         }
 
         sendErrorProd(error, res);

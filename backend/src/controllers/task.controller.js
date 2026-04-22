@@ -2,7 +2,8 @@ const taskService = require('../services/task.service');
 
 exports.getTasks = async (req, res, next) => {
     try {
-        const data = await taskService.getAllTasks();
+        const { status, projectId } = req.query;
+        const data = await taskService.getAllTasks({ status, projectId });
         res.status(200).json({ status: 'success', data });
     } catch (err) {
         next(err);

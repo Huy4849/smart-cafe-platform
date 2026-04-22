@@ -1,108 +1,47 @@
-const AppError = require("../utils/AppError");
+const projectService = require("../services/project.service");
 
-/**
- * Create a new project
- */
-const createProject = (req, res, next) => {
+exports.createProject = async (req, res, next) => {
     try {
-        const { name, description, status } = req.body;
-
-        // Database insert would go here
-        res.status(201).json({
-            message: "Project created successfully",
-            project: {
-                id: 1,
-                name,
-                description,
-                status: status || "active",
-                createdAt: new Date()
-            }
-        });
+        const project = await projectService.createProject(req.body, req.user.id);
+        res.status(201).json({ status: "success", data: project });
     } catch (error) {
         next(error);
     }
 };
 
-/**
- * Get all projects
- */
-const getProjects = (req, res, next) => {
+exports.getProjects = async (req, res, next) => {
     try {
-        // Database query would go here
-        res.json({
-            projects: [],
-            total: 0,
-            message: "Projects retrieved successfully"
-        });
+        const { search, status } = req.query;
+        const projects = await projectService.getProjects(req.user.id, req.user.role, { search, status });
+        res.status(200).json({ status: "success", data: { projects } });
     } catch (error) {
         next(error);
     }
 };
 
-/**
- * Get project by ID
- */
-const getProjectById = (req, res, next) => {
+exports.getProjectById = async (req, res, next) => {
     try {
-        const { id } = req.params;
-
-        // Database query would go here
-        res.json({
-            project: {
-                id,
-                name: "Sample Project",
-                description: "A sample project"
-            }
-        });
+        const project = await projectService.getProjectById(req.params.id);
+        res.status(200).json({ status: "success", data: { project } });
     } catch (error) {
         next(error);
     }
 };
 
-/**
- * Update project
- */
-const updateProject = (req, res, next) => {
+exports.updateProject = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const { name, description, status } = req.body;
-
-        // Database update would go here
-        res.json({
-            message: "Project updated successfully",
-            project: {
-                id,
-                name,
-                description,
-                status
-            }
-        });
+        const project = await projectService.updateProject(req.params.id, req.body);
+        res.status(200).json({ status: "success", data: project });
     } catch (error) {
         next(error);
     }
 };
 
-/**
- * Delete project
- */
-const deleteProject = (req, res, next) => {
+exports.deleteProject = async (req, res, next) => {
     try {
-        const { id } = req.params;
-
-        // Database delete would go here
-        res.json({
-            message: "Project deleted successfully",
-            id
-        });
+        await projectService.deleteProject(req.params.id);
+        res.status(200).json({ status: "success", message: "Project deleted successfully" });
     } catch (error) {
         next(error);
     }
-};
-
-module.exports = {
-    createProject,
-    getProjects,
-    getProjectById,
-    updateProject,
-    deleteProject
 };

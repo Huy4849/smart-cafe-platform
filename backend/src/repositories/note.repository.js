@@ -1,22 +1,22 @@
 const db = require('../config/db');
 
 class NoteRepository {
-    async findByDeal(dealId) {
+    async findByTask(taskId) {
         const { rows } = await db.query(`
-            SELECT n.*, u.name as author_name 
-            FROM notes n 
-            LEFT JOIN users u ON n.author_id = u.id 
-            WHERE n.deal_id = $1 
+            SELECT n.*, u.name as author_name
+            FROM notes n
+            LEFT JOIN users u ON n.author_id = u.id
+            WHERE n.task_id = $1
             ORDER BY n.created_at DESC
-        `, [dealId]);
+        `, [taskId]);
         return rows;
     }
 
     async create(data) {
-        const { content, dealId, authorId } = data;
+        const { content, taskId, authorId } = data;
         const { rows } = await db.query(
-            "INSERT INTO notes (content, deal_id, author_id) VALUES ($1, $2, $3) RETURNING *",
-            [content, dealId, authorId]
+            "INSERT INTO notes (content, task_id, author_id) VALUES ($1, $2, $3) RETURNING *",
+            [content, taskId, authorId]
         );
         return rows[0];
     }

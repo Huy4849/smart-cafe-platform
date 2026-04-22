@@ -18,6 +18,10 @@ class UserService {
         await userRepository.updatePassword(id, hashedPassword);
         return { message: 'Đổi mật khẩu thành công!' };
     }
+
+    async getAllUsers() {
+        return await userRepository.findAll();
+    }
 }
 
 module.exports = new UserService();

@@ -24,4 +24,7 @@ router.put("/profile", auth.protect, userController.updateProfile);
 // Đổi mật khẩu
 router.post("/change-password", auth.protect, userController.changePassword);
 
+// Lấy danh sách tất cả người dùng
+router.get("/", auth.protect, userController.getUsers);
+
 module.exports = router;

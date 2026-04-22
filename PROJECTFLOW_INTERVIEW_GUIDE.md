@@ -13,7 +13,7 @@
 |--------|-------|---------|
 | **Type** | CRM + E-commerce | Project Management |
 | **Complexity** | Advanced/Over-engineered | Balanced/Clean |
-| **DevOps** | Ansible + Prometheus | Docker + GitHub Actions |
+| **DevOps** | Ansible + Prometheus | Docker (for development) |
 | **Backend Features** | Leads, Deals, Products | Projects, Tasks, Notes |
 | **Frontend Pages** | 8 pages (many CRM) | 6 pages (focused) |
 | **Target Audience** | Senior DevOps | Junior Fullstack Engineer |
@@ -71,33 +71,24 @@
 
 ---
 
-## 🐳 DevOps Simplification
+## 🐳 Development Setup
 
-### ❌ **Removed (Advanced)**
-- ❌ **Ansible Deployment** - Too complex for interview
-  - `ansible/` folder deleted
-  - Removed: `deploy-staging` and `deploy-prod` jobs
-  
-- ❌ **Prometheus Monitoring** - Out of scope
-  - `monitoring/` folder deleted
-  - Removed Grafana from docker-compose
-  - Removed from GitHub Actions workflow
-
-### ✅ **Kept (Essential)**
-- ✅ **Docker** - Core containerization
+### ✅ **Kept (Essential for Development)**
+- ✅ **Docker** - Containerization for easy development
   - `backend/Dockerfile`
   - `frontend/Dockerfile`
   - `docker-compose.yml` (simplified)
+  - `docker/nginx.conf`
 
-- ✅ **GitHub Actions CI/CD** - Modern pipeline
-  - `test-and-lint` job
-  - `build-and-push` job (Docker images)
-  - `notify` job (Slack)
-
-- ✅ **Trivy Security Scanning** - Important security practice
+### ❌ **Removed (DevOps Complexity)**
+- ❌ **CI/CD Pipeline** - GitHub Actions workflows removed
+- ❌ **Ansible Deployment** - Infrastructure automation removed
+- ❌ **Prometheus Monitoring** - System monitoring removed
+- ❌ **Advanced DevOps** - Focus on core fullstack skills
 
 ### 🔄 **Updated**
 - `docker-compose.yml` - Renamed services (projectflow-db, projectflow-api, projectflow-ui, projectflow-cache, projectflow-proxy)
+- Simplified architecture - no complex deployment pipelines
 - `.github/workflows/deploy.yml` - Removed Ansible, simplified workflow
 
 ---

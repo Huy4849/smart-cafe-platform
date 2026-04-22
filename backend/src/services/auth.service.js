@@ -7,7 +7,7 @@ class AuthService {
     async register(data) {
         const existingUser = await userRepository.findByEmail(data.email);
         if (existingUser) {
-            throw new AppError('Email already in use', 400);
+            throw new AppError('Email này đã được sử dụng', 400);
         }
 
         const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -18,7 +18,7 @@ class AuthService {
             password: hashedPassword
         });
 
-        return { message: 'User registered successfully', user: newUser };
+        return { message: 'Đăng ký tài khoản thành công', user: newUser };
     }
 
     async login(data) {

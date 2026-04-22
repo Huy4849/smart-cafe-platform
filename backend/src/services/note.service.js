@@ -1,11 +1,11 @@
 const noteRepository = require('../repositories/note.repository');
 
 class NoteService {
-    async getNotesByDeal(dealId) {
-        return await noteRepository.findByDeal(dealId);
+    async getNotesByTask(taskId) {
+        return await noteRepository.findByTask(taskId);
     }
 
-    async addNoteToDeal(data, authorId) {
+    async addNoteToTask(data, authorId) {
         return await noteRepository.create({ ...data, authorId });
     }
 }

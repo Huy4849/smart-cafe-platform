@@ -33,6 +33,11 @@ class UserRepository {
         await db.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, id]);
         return true;
     }
+
+    async findAll() {
+        const { rows } = await db.query('SELECT id, name, email, role, created_at FROM users ORDER BY name ASC');
+        return rows;
+    }
 }
 
 module.exports = new UserRepository();

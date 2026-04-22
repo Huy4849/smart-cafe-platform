@@ -24,3 +24,15 @@ exports.changePassword = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.getUsers = async (req, res, next) => {
+    try {
+        const users = await userService.getAllUsers();
+        res.status(200).json({
+            status: 'success',
+            data: { users }
+        });
+    } catch (err) {
+        next(err);
+    }
+};

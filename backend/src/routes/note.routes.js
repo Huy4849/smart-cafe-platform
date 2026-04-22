@@ -5,9 +5,9 @@ const auth = require('../middlewares/auth.middleware');
 
 router.use(auth.protect);
 
-router.get('/:dealId', async (req, res, next) => {
+router.get('/task/:taskId', async (req, res, next) => {
     try {
-        const data = await noteService.getNotesByDeal(req.params.dealId);
+        const data = await noteService.getNotesByTask(req.params.taskId);
         res.status(200).json({ status: 'success', data });
     } catch (err) {
         next(err);
@@ -16,7 +16,7 @@ router.get('/:dealId', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        const data = await noteService.addNoteToDeal(req.body, req.user.id);
+        const data = await noteService.addNoteToTask(req.body, req.user.id);
         res.status(201).json({ status: 'success', data });
     } catch (err) {
         next(err);

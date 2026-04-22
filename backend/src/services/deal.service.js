@@ -1,3 +1,7 @@
+// LEGACY FILE - This file is no longer used in ProjectFlow
+// It was part of the original CRM system and can be safely deleted
+// ProjectFlow focuses on project management, not deal management
+
 const dealRepository = require('../repositories/deal.repository');
 
 class DealService {
